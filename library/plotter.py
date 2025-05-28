@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from core import functional as F
-from core.functional import extract_features
+import functional as F
+from functional import extract_features
 
 
 class Layer:
@@ -73,7 +73,7 @@ def data_to_plot(company_name, predict=False):
     print('plotting...')
     X = X['year'].tolist() #for example
     y = y.tolist()
-    plotter(X, y, company_name + ' Energy Consuption.png')
+    plotter(X, y, company_name + ' Energy Consumption.png')
 
 
 #predictor = NeuralNetwork(1, 1, 1)
