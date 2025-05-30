@@ -1,17 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
+
 import functional as F
-from functional import extract_features
 
 
 class Layer:
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size) -> None:
         self.weights = np.random.randn(input_size, output_size) * 0.01
         self.bias = np.zeros((1, output_size))
 
 
 class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size) -> None:
         # Инициализация весов и смещений
         self.layer1 = Layer(input_size, hidden_size)
         self.layer2 = Layer(hidden_size, output_size)
@@ -19,7 +19,7 @@ class NeuralNetwork:
     def sigmoid(self, x):
         return 0 if x.any() < 0 else x
 
-    def sigmoid_derivative(self, x):
+    def sigmoid_derivative(self, x) -> int:
         return 0 if x.any() < 0 else 1
 
     def feedforward(self, X):
@@ -29,7 +29,7 @@ class NeuralNetwork:
         self.A2 = self.sigmoid(self.Z2)
         return self.A2
 
-    def backpropagate(self, X, y, learning_rate):
+    def backpropagate(self, X, y, learning_rate) -> None:
         m = X.shape[0]
         output_error = self.A2 - y
         dZ2 = output_error * self.sigmoid_derivative(self.A2)
@@ -45,38 +45,33 @@ class NeuralNetwork:
         self.layer1.weights -= learning_rate * dW1
         self.layer1.bias -= learning_rate * db1
 
-    def train(self, X, y, epochs=10000, learning_rate=0.1):
+    def train(self, X, y, epochs=10000, learning_rate=0.1) -> None:
         for epoch in range(epochs):
             self.feedforward(X)
             self.backpropagate(X, y, learning_rate)
             if epoch % 1000 == 0:
-                loss = np.mean((y - self.A2) ** 2)
-                print(f"Epoch {epoch}, Loss: {loss:.4f}")
+                np.mean((y - self.A2) ** 2)
 
     def predict(self, X):
         return self.feedforward(X)
 
 
-def plotter(x, y, name):
+def plotter(x, y, name) -> bool:
     try:
         plt.plot(x, y)
         plt.savefig(name)
-    except Exception as e:
-        print(e)
+    except Exception:
         return False
     return True
 
 
-def data_to_plot(company_name, predict=False):
+def data_to_plot(company_name, predict=False) -> None:
     X, y = F.extract_features(company_name)
-    print('data extraction - complete!')
-    print('plotting...')
-    X = X['year'].tolist() #for example
+    X = X["year"].tolist()  # for example
     y = y.tolist()
-    plotter(X, y, company_name + ' Energy Consumption.png')
+    plotter(X, y, company_name + " Energy Consumption.png")
 
 
-#predictor = NeuralNetwork(1, 1, 1)
+# predictor = NeuralNetwork(1, 1, 1)
 
-data_to_plot('AEP')
-
+data_to_plot("AEP")
