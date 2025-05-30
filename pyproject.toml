@@ -1,5 +1,5 @@
 [project]
-name = "energy-consuption-time-series"
+name = "energy-consumption-time-series"
 requires-python = ">=3.13, <3.14"
 
 [tool.ruff]
