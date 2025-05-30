@@ -29,7 +29,7 @@ class SelectionMenu[T: object](Menubutton):
             self.menu.add_command(label=item, command=self.wrap_callback(item))
 
     def wrap_callback(self, value: T) -> Callable[[], None]:
-        """Wrapps callback: set selected value before calling callback."""
+        """Wraps callback: set selected value before calling callback."""
         @wraps(self.callback)
         def wrapper() -> None:
             self.value = value
