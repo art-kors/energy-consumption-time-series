@@ -60,7 +60,7 @@ class TimePicker(Frame):
 
         self.after(1, self.check_selected_time)
 
-    def on_month_selected(self, _selected_mounth: int) -> None:
+    def on_month_selected(self, _selected_month: int) -> None:
         """Check days menu, when month selected."""
         _, days_in_month = monthrange(self.year_menu.value, self.month_menu.value)
         self.day_menu.set_items(range(1, days_in_month + 1))
