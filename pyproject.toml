@@ -1,0 +1,8 @@
+[project]
+name = "energy-consuption-time-series"
+requires-python = ">=3.13, <3.14"
+
+[tool.ruff]
+src = ["./main.py", "./library/"]
+lint.select = ["ALL"]
+lint.ignore = ["D203", "D212"]
