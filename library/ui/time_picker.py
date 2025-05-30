@@ -36,7 +36,7 @@ class TimePicker(Frame):
         self.minute_menu.pack()
 
     def check_selected_time(self) -> None:
-        """Check that selected time is grater then now UTC time."""
+        """Check that selected time is greater than now UTC time."""
         datetime_now = datetime.now(UTC)
         datetime_selected = datetime(
             year=self.year_menu.value,
