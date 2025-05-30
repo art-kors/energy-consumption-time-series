@@ -1,6 +1,7 @@
 from tkinter import Tk
 
 from library.ui.time_picker import TimePicker
+from library.ui.menu import SelectionMenu
 
 
 class App(Tk):
@@ -8,7 +9,6 @@ class App(Tk):
         super().__init__()
         self.time_picker = TimePicker(self)
         self.time_picker.pack()
-        
 
 
 if __name__ == "__main__":
