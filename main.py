@@ -1,19 +1,17 @@
-"""Main application module."""
+import sys
+from sys import argv
 
-from tkinter import Tk
+from library.ui.app import App
+from PySide6.QtWidgets import QApplication
 
-from library.ui.time_picker import TimePicker
 
-
-class App(Tk):
-    """Main application class."""
-
-    def __init__(self) -> None:
-        """Initialize main application class."""
-        super().__init__()
-        self.time_picker = TimePicker(self)
-        self.time_picker.pack()
+def main():
+    app = QApplication(argv)
+    window = App()
+    window.resize(350, 250)
+    window.show()
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    App().mainloop()
+    main()

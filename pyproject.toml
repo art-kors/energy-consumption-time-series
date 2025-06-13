@@ -1,6 +1,17 @@
 [project]
 name = "energy-consumption-time-series"
+version = "0.1.0"
+description = "HSE course work"
+readme = "README.md"
+authors = [
+    { name = "Andrew Kozmin", email = "syn.kolbasyn.06@gmail.com" },
+    { name = "first_name last_name", email = "your@email.com" },
+    { name = "first_name last_name", email = "your@email.com" }
+]
 requires-python = ">=3.13, <3.14"
+dependencies = [
+    "pyside6>=6.9.1",
+]
 
 [tool.ruff]
 src = ["./main.py", "./library/"]
