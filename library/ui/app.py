@@ -1,54 +1,31 @@
 """Main UI module."""
 
-import sys
-from sys import argv
+from datetime import datetime, time
 
-from PySide6.QtCore import QDate, Qt, QTime
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QApplication,
     QComboBox,
-    QDateEdit,
-    QHBoxLayout,
-    QLabel,
     QMessageBox,
     QPushButton,
-    QTimeEdit,
-    QVBoxLayout,
     QWidget,
 )
 
+from library.ui.date_selector import DateSelector
+from library.ui.layout import Layout
+from library.ui.time_selector import TimeSelector
 
-class TimeCitySelector(QWidget):
+
+class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Выбор даты, времени и города")
 
-        # Метки
-        start_date_label = QLabel("Дата начала:")
-        start_time_label = QLabel("Время начала:")
-        end_date_label = QLabel("Дата окончания:")
-        end_time_label = QLabel("Время окончания:")
-        city_label = QLabel("Город:")
+        self.start_date = DateSelector(self.check_datetime_validity)
+        self.end_date = DateSelector(self.check_datetime_validity)
 
-        # Виджеты выбора даты
-        self.start_date = QDateEdit()
-        self.start_date.setCalendarPopup(True)
-        self.start_date.setDate(QDate.currentDate())
+        self.start_time = TimeSelector(self.check_datetime_validity)
+        self.end_time = TimeSelector(self.check_datetime_validity)
 
-        self.end_date = QDateEdit()
-        self.end_date.setCalendarPopup(True)
-        self.end_date.setDate(QDate.currentDate())
-
-        # Виджеты выбора времени
-        self.start_time = QTimeEdit()
-        self.start_time.setDisplayFormat("HH:mm")
-        self.start_time.setTime(QTime.currentTime())
-
-        self.end_time = QTimeEdit()
-        self.end_time.setDisplayFormat("HH:mm")
-        self.end_time.setTime(QTime.currentTime())
-
-        # Виджет выбора города
         self.city_combo = QComboBox()
         cities = ["Москва", "Санкт-Петербург", "Новосибирск", "Екатеринбург", "Казань"]
         self.city_combo.addItems(cities)
@@ -57,56 +34,23 @@ class TimeCitySelector(QWidget):
         self.btn_show = QPushButton("Показать выбор")
         self.btn_show.clicked.connect(self.show_selection)
 
-        # Компоновка элементов
-        layout = QVBoxLayout()
-
-        start_date_layout = QHBoxLayout()
-        start_date_layout.addWidget(start_date_label)
-        start_date_layout.addWidget(self.start_date)
-
-        start_time_layout = QHBoxLayout()
-        start_time_layout.addWidget(start_time_label)
-        start_time_layout.addWidget(self.start_time)
-
-        end_date_layout = QHBoxLayout()
-        end_date_layout.addWidget(end_date_label)
-        end_date_layout.addWidget(self.end_date)
-
-        end_time_layout = QHBoxLayout()
-        end_time_layout.addWidget(end_time_label)
-        end_time_layout.addWidget(self.end_time)
-
-        city_layout = QHBoxLayout()
-        city_layout.addWidget(city_label)
-        city_layout.addWidget(self.city_combo)
-
-        layout.addLayout(start_date_layout)
-        layout.addLayout(start_time_layout)
-        layout.addLayout(end_date_layout)
-        layout.addLayout(end_time_layout)
-        layout.addLayout(city_layout)
-        layout.addWidget(self.btn_show)
-
-        self.setLayout(layout)
-
-        # Подключаем слоты для проверки корректности выбора
-        self.start_date.dateChanged.connect(self.check_datetime_validity)
-        self.start_time.timeChanged.connect(self.check_datetime_validity)
-        self.end_date.dateChanged.connect(self.check_datetime_validity)
-        self.end_time.timeChanged.connect(self.check_datetime_validity)
+        self.setLayout(Layout(self.start_date, self.start_time, self.end_date, self.end_time, self.city_combo, self.btn_show))
 
         self.check_datetime_validity()
 
-    def check_datetime_validity(self):
+    def get_start_datetime(self):
         start_dt = self.start_date.date().toPython()
         start_tm = self.start_time.time().toPython()
+        return datetime.combine(start_dt, time(start_tm.hour, start_tm.minute))
+
+    def get_end_datetime(self):
         end_dt = self.end_date.date().toPython()
         end_tm = self.end_time.time().toPython()
+        return datetime.combine(end_dt, time(end_tm.hour, end_tm.minute))
 
-        from datetime import datetime, time
-
-        start = datetime.combine(start_dt, time(start_tm.hour, start_tm.minute))
-        end = datetime.combine(end_dt, time(end_tm.hour, end_tm.minute))
+    def check_datetime_validity(self):
+        start = self.get_start_datetime()
+        end = self.get_end_datetime()
 
         if start > end:
             self.btn_show.setEnabled(False)
@@ -127,10 +71,3 @@ class TimeCitySelector(QWidget):
                f"Город: {city}")
 
         QMessageBox.information(self, "Выбранные данные", msg)
-
-if __name__ == "__main__":
-    app = QApplication(argv)
-    window = TimeCitySelector()
-    window.resize(350, 250)
-    window.show()
-    sys.exit(app.exec())
