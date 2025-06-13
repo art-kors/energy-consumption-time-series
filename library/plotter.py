@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+import pickle
 import functional as F
+from library.functional import extract_features
 
 
 class Layer:
@@ -16,27 +17,27 @@ class NeuralNetwork:
         self.layer1 = Layer(input_size, hidden_size)
         self.layer2 = Layer(hidden_size, output_size)
 
-    def sigmoid(self, x):
-        return 0 if x.any() < 0 else x
+    def activation(self, x):
+        return 0 if x.any() < 0 else x #ReLU
 
-    def sigmoid_derivative(self, x) -> int:
+    def activation_derivative(self, x) -> int:
         return 0 if x.any() < 0 else 1
 
     def feedforward(self, X):
         self.Z1 = np.dot(X, self.layer1.weights) + self.layer1.bias
-        self.A1 = self.sigmoid(self.Z1)
+        self.A1 = self.activation(self.Z1)
         self.Z2 = np.dot(self.A1, self.layer2.weights) + self.layer2.bias
-        self.A2 = self.sigmoid(self.Z2)
+        self.A2 = self.activation(self.Z2)
         return self.A2
 
     def backpropagate(self, X, y, learning_rate) -> None:
         m = X.shape[0]
         output_error = self.A2 - y
-        dZ2 = output_error * self.sigmoid_derivative(self.A2)
+        dZ2 = output_error * self.activation_derivative(self.A2)
         dW2 = np.dot(self.A1.T, dZ2) / m
         db2 = np.sum(dZ2, axis=0, keepdims=True) / m
 
-        dZ1 = np.dot(dZ2, self.layer2.weights.T) * self.sigmoid_derivative(self.A1)
+        dZ1 = np.dot(dZ2, self.layer2.weights.T) * self.activation_derivative(self.A1)
         dW1 = np.dot(X.T, dZ1) / m
         db1 = np.sum(dZ1, axis=0, keepdims=True) / m
 
@@ -72,6 +73,13 @@ def data_to_plot(company_name, predict=False) -> None:
     plotter(X, y, company_name + " Energy Consumption.png")
 
 
-# predictor = NeuralNetwork(1, 1, 1)
+def save_model(X, y, filename):
+    #TODO: train model
+    model = 0
+    with open(f'{filename}.pickle', 'wb') as f:
+        pickle.dumps(model, f)
 
-data_to_plot("AEP")
+
+#X, y = extract_features('AEP', 12, 15, '2004-12-31', '2005-12-31')
+#print('starting')
+#save_model(X, y, 'model')
