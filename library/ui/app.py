@@ -2,56 +2,25 @@
 
 from datetime import datetime, time
 
-from PySide6.QtWidgets import (
-    QComboBox,
-    QMessageBox,
-    QPushButton,
-    QWidget,
-    QDialog,
-    QVBoxLayout,
-    QCheckBox,
-)
-
+import matplotlib.pyplot as plt
 import pandas as pd
-from PySide6.QtWidgets import QTableView
-from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex
-from PySide6.QtWidgets import QHeaderView
-
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
+from PySide6.QtWidgets import (
+    QCheckBox,
+    QComboBox,
+    QDialog,
+    QHeaderView,
+    QPushButton,
+    QTableView,
+    QVBoxLayout,
+    QWidget,
+)
 
 from library.ui.date_selector import DateSelector
 from library.ui.layout import Layout
 from library.ui.time_selector import TimeSelector
-
-
-
-import sys
-import pandas as pd
-from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QDialog
-)
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.pyplot as plt
-
-
-class PlotDialog(QDialog):
-    def __init__(self, df, x_col, y_col, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("График зависимости")
-
-        layout = QVBoxLayout(self)
-
-        self.figure, self.ax = plt.subplots()
-        self.canvas = FigureCanvas(self.figure)
-        layout.addWidget(self.canvas)
-
-        # Построение графика
-        self.ax.plot(df[x_col], df[y_col], marker='o', linestyle='-')
-        self.ax.set_xlabel(x_col)
-        self.ax.set_ylabel(y_col)
-        self.ax.set_title(f'Зависимость {y_col} от {x_col}')
-        self.ax.grid(True)
-
-        self.canvas.draw()
+from library.ui.plot import Plot
 
 
 class PandasModel(QAbstractTableModel):
@@ -82,21 +51,21 @@ class PandasModel(QAbstractTableModel):
 
 
 class CheckboxDialog(QDialog):
-    def __init__(self, parent, dataframe):
+    def __init__(self, parent, data_frame):
         super().__init__(parent)
-        self.dataframe = dataframe
+        self.data_frame = data_frame
         self.setWindowTitle("Выберите варианты")
         self.checkboxes = []
         layout = QVBoxLayout()
 
         self.table = QTableView()
-        self.model = PandasModel(dataframe)
+        self.model = PandasModel(data_frame)
         self.table.setModel(self.model)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # self.table.horizontalHeader().setStretchLastSection(True)
         layout.addWidget(self.table)
 
-        for label in dataframe.columns.tolist()[:-1]:
+        for label in data_frame.columns.tolist()[:-1]:
             cb = QCheckBox(label)
             self.checkboxes.append(cb)
             layout.addWidget(cb)
@@ -109,9 +78,14 @@ class CheckboxDialog(QDialog):
 
     def show_checked(self):
         checked = [cb.text() for cb in self.checkboxes if cb.isChecked()]
-        print("Отмеченные чекбоксы:", checked)
-        for col in checked:
-            PlotDialog(self.dataframe, col, self.dataframe.columns.tolist()[-1], self).show()
+        y_column = self.data_frame.columns.tolist()[-1]
+        for x_column in checked:
+            Plot(
+                parent=self,
+                data_frame=self.data_frame,
+                x_column=x_column,
+                y_column=y_column,
+            ).show()
 
 
 class App(QWidget):
