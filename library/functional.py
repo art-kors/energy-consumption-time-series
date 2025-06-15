@@ -2,11 +2,10 @@ import pandas as pd
 import datetime as dt
 import pickle
 import numpy as np
-from boosting import GradientBoostingRegressor
-from nn import *
+from .boosting import GradientBoostingRegressor
 
 
-def extract_features(company_name, hour_from, hour_to, date_from, date_to):
+def extract_features(company_name):
     # TODO: создать функцию, которая возвращает pd.Dataframe() с фичами
     # пока нужно просто год, месяц, день, квартал(время года)
     # другие фичи уже уточняй уже у @AK_N0maD
@@ -26,7 +25,7 @@ def extract_features(company_name, hour_from, hour_to, date_from, date_to):
     df[f'dayofyear'] = df['Datetime'].dt.dayofyear
     df[f'weekofyear'] = df['Datetime'].dt.isocalendar().week
     print('filtration')
-    df = data_filter(df, hour_from, hour_to, date_from, date_to)
+    #df = data_filter(df, hour_from, hour_to, date_from, date_to)
 
     df[f'day_sin'] = np.sin(df['day'])
     df[f'day_cos'] = np.cos(df['day'])
@@ -48,7 +47,7 @@ def generate_fetures(hour_from, hour_to, date_from, date_to): #X only!
     dates = pd.date_range(start=date_from, end=date_to, freq='D')
 
     # Создаем временные метки внутри указанного интервала
-    time_range = pd.date_range(start=f'{hour_from}:00', end=f'{hour_to}:00', freq='1H').time
+    time_range = pd.date_range(start=f'{hour_from}:00', end=f'{hour_to}:00', freq='1h').time
 
     # Генерируем все комбинации дат и времени
     datetime_list = []
@@ -66,27 +65,17 @@ def data_filter(df, hour_from, hour_to, date_from, date_to):  # date info is tup
     return df
 
 
-def save_model(company_name, hour_from, hour_to, date_from, date_to, filename, method="Boosting"):
-    X_train, y_train = extract_features(company_name, hour_from, hour_to, date_from, date_to)
+def pickle_model(company_name, filename, method="Boosting"):
+    X_train, y_train = extract_features(company_name)
     columns = X_train.columns
     X_train, y_train = X_train.to_numpy(), y_train.to_numpy()
     model = None
     if method == 'Boosting':
-        model = GradientBoostingRegressor(n_estimators=50, learning_rate=0.0001, max_depth=10)
+        model = GradientBoostingRegressor(n_estimators=50, learning_rate=0.0001, max_depth=5)
         model.train(X_train, y_train)
     elif method == 'NeuralNetwork':
-        model = NeuralNetwork([
-            Dense(X_train.shape[1], X_train.shape[1]//2),
-            ReLU(),
-            Dense(X_train.shape[1]//2, X_train.shape[1]//4),
-            ReLU(),
-            Dense(X_train.shape[1]//4, 1),
-            ReLU()
-        ],
-            loss=mse,
-            loss_prime=mse_prime,
-            numeric_features=[*columns])
-        model.train(X_train=X_train, y_train=y_train, batch_size=128, epochs=10, learning_rate=0.01)
+        #TODO: in near future
+        pass
     else:
         raise "There is no model"
     with open(f'{filename}.pkl', 'wb') as f:
@@ -125,3 +114,12 @@ def model_predict(filename, hour_from, hour_to, date_from, date_to):
         model = pickle.load(f)
     pred = model.predict(X)
     return pred
+
+
+def model_predict_by_data(filename, X):
+    model = 0
+    with open(f'{filename}.pkl', 'rb') as f:
+        model = pickle.load(f)
+    pred = model.predict(X)
+    return pred
+
