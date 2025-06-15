@@ -43,7 +43,7 @@ def extract_features(company_name):
     return (df, y)
 
 
-def generate_fetures(hour_from, hour_to, date_from, date_to):  # X only!
+def generate_features(hour_from, hour_to, date_from, date_to):  # X only!
     # Создаем диапазон дат
     dates = pd.date_range(start=date_from, end=date_to, freq="D")
 
@@ -104,7 +104,7 @@ def pickle_model(company_name, filename, method="Boosting"):
 
 
 def model_predict(filename, hour_from, hour_to, date_from, date_to):
-    df = generate_fetures(hour_from, hour_to, date_from, date_to)
+    df = generate_features(hour_from, hour_to, date_from, date_to)
     df["Datetime"] = pd.to_datetime(df["Datetime"])
     # Извлекаем компоненты даты и времени
     df["year"] = df["Datetime"].dt.year
