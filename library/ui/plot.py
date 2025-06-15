@@ -1,4 +1,6 @@
-from typing import Self
+"""Plot dialog module."""
+
+from typing import Self, override
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
@@ -7,6 +9,9 @@ from PySide6.QtWidgets import QDialog, QVBoxLayout, QWidget
 
 
 class Plot(QDialog):
+    """Plot dialog."""
+
+    @override
     def __init__(
         self: Self,
         parent: QWidget,

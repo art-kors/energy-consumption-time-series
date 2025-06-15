@@ -1,3 +1,5 @@
+"""Pandas table model module."""
+
 from typing import Self, override
 
 from pandas import DataFrame
@@ -11,7 +13,10 @@ from PySide6.QtCore import (
 
 
 class PandasModel(QAbstractTableModel):
-    def __init__(self: Self, parent: QObject, data_frame: DataFrame):
+    """Pandas table model."""
+
+    @override
+    def __init__(self: Self, parent: QObject, data_frame: DataFrame) -> None:
         super().__init__(parent=parent)
         self.data_frame = data_frame
 

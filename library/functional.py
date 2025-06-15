@@ -141,7 +141,7 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
 
     X = df.to_numpy()
     model = 0
-    with open(f"{filename}.pkl", "rb") as f:
+    with open(f"./scripts/{filename}_regressor.pkl", "rb") as f:
         model = pickle.load(f)
     pred = model.predict(X)
     return pred

@@ -1,20 +1,32 @@
+"""Main layout module."""
+
+from typing import Self, override
+
 from PySide6.QtWidgets import (
+    QComboBox,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QVBoxLayout,
 )
 
+from library.ui.date_selector import DateSelector
+from library.ui.time_selector import TimeSelector
+
 
 class Layout(QVBoxLayout):
+    """Main window layout."""
+
+    @override
     def __init__(
-        self,
-        start_date,
-        start_time,
-        end_date,
-        end_time,
-        city_combo,
-        btn_show,
-    ):
+        self: Self,
+        start_date: DateSelector,
+        start_time: TimeSelector,
+        end_date: DateSelector,
+        end_time: TimeSelector,
+        companies: QComboBox,
+        predict_button: QPushButton,
+    ) -> None:
         super().__init__()
 
         start_date_layout = QHBoxLayout()
@@ -34,12 +46,12 @@ class Layout(QVBoxLayout):
         end_time_layout.addWidget(end_time)
 
         city_layout = QHBoxLayout()
-        city_layout.addWidget(QLabel("Город:"))
-        city_layout.addWidget(city_combo)
+        city_layout.addWidget(QLabel("Компания:"))
+        city_layout.addWidget(companies)
 
         self.addLayout(start_date_layout)
         self.addLayout(start_time_layout)
         self.addLayout(end_date_layout)
         self.addLayout(end_time_layout)
         self.addLayout(city_layout)
-        self.addWidget(btn_show)
+        self.addWidget(predict_button)

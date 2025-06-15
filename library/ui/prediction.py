@@ -1,10 +1,13 @@
-from typing import Self
+"""Prediction dialog module."""
+
+from typing import Self, override
 
 from pandas import DataFrame
 from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
     QHeaderView,
+    QLabel,
     QPushButton,
     QTableView,
     QVBoxLayout,
@@ -15,31 +18,36 @@ from library.ui.plot import Plot
 from library.ui.table import PandasModel
 
 
-class ResultDialog(QDialog):
+class PredictionDialog(QDialog):
+    """Predict dialog."""
+
+    @override
     def __init__(self: Self, parent: QWidget, data_frame: DataFrame) -> None:
         super().__init__(parent=parent)
-        self.setWindowTitle("Выберите варианты")
+        self.setWindowTitle("Предсказание")
 
         self.data_frame = data_frame
-        self.checkboxes = []
+        self.graphs = []
 
         layout = QVBoxLayout()
 
         self.table = self.create_table(data_frame=data_frame)
         layout.addWidget(self.table)
+        layout.addWidget(QLabel("Выберите графики зависимости предсказания"))
 
         for label in data_frame.columns.tolist()[:-1]:
-            cb = QCheckBox(label)
-            self.checkboxes.append(cb)
-            layout.addWidget(cb)
+            graph = QCheckBox(label)
+            self.graphs.append(graph)
+            layout.addWidget(graph)
 
-        self.btn_ok = QPushButton("Показать выбранные")
-        self.btn_ok.clicked.connect(self.show_checked)
-        layout.addWidget(self.btn_ok)
+        self.show_graphs_button = QPushButton("Показать графики")
+        self.show_graphs_button.clicked.connect(self.show_selected_graphs)
+        layout.addWidget(self.show_graphs_button)
 
         self.setLayout(layout)
 
     def create_table(self: Self, data_frame: DataFrame) -> QTableView:
+        """Create prediction table."""
         table = QTableView()
         table.setModel(PandasModel(parent=self, data_frame=data_frame))
         table.horizontalHeader().setSectionResizeMode(
@@ -48,8 +56,9 @@ class ResultDialog(QDialog):
         # self.table.horizontalHeader().setStretchLastSection(True)
         return table
 
-    def show_checked(self: Self) -> None:
-        checked = [cb.text() for cb in self.checkboxes if cb.isChecked()]
+    def show_selected_graphs(self: Self) -> None:
+        """Show selected graphs."""
+        checked = [graph.text() for graph in self.graphs if graph.isChecked()]
         y_column = self.data_frame.columns.tolist()[-1]
         for x_column in checked:
             Plot(
