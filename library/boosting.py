@@ -78,7 +78,7 @@ class GradientBoostingRegressor:
         self.trees = []
         self.initial_prediction = None
 
-    def fit(self, X, y):
+    def train(self, X, y):
         # Начальное предсказание - среднее значение y
         self.initial_prediction = np.mean(y)
         current_pred = np.full_like(y, self.initial_prediction, dtype=np.float64)
