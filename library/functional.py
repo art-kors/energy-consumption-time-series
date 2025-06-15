@@ -1,9 +1,11 @@
 import pickle
+import datetime as dt
 
 import numpy as np
 import pandas as pd
 
 from .boosting import GradientBoostingRegressor
+
 
 
 def extract_features(company_name):
@@ -103,7 +105,15 @@ def pickle_model(company_name, filename, method="Boosting"):
         pickle.dump(model, f)
 
 
-def model_predict(filename, hour_from, hour_to, date_from, date_to):
+def model_predict(filename, start: dt.datetime, end: dt.datetime):
+    date_from, date_to = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+    hour_from, hour_to = start.strftime("%H"), end.strftime("%H")
+    if hour_to[0] == "0":
+        hour_to = hour_to[1]
+    if hour_from[0] == "0":
+        hour_from = hour_from[1]
+    hour_from = int(hour_from)
+    hour_to = int(hour_to)
     df = generate_features(hour_from, hour_to, date_from, date_to)
     df["Datetime"] = pd.to_datetime(df["Datetime"])
     # Извлекаем компоненты даты и времени
