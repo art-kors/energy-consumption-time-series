@@ -143,8 +143,9 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
     model = 0
     with open(f"{filename}.pkl", "rb") as f:
         model = pickle.load(f)
-    pred = model.predict(X)
-    return pred
+    pred = df.DataFrame({f"{filename}_MW": model.predict(X)})
+    all = pd.concat([df, pred], axis=1)
+    return (all, pred)
 
 
 def model_predict_by_data(filename, X):
