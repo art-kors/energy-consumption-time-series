@@ -20,6 +20,7 @@ class Layout(QVBoxLayout):
     @override
     def __init__(
         self: Self,
+        settings_button: QPushButton,
         start_date: DateSelector,
         start_time: TimeSelector,
         end_date: DateSelector,
@@ -49,6 +50,7 @@ class Layout(QVBoxLayout):
         city_layout.addWidget(QLabel("Компания:"))
         city_layout.addWidget(companies)
 
+        self.addWidget(settings_button)
         self.addLayout(start_date_layout)
         self.addLayout(start_time_layout)
         self.addLayout(end_date_layout)

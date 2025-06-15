@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from library.ui.settings import Settings
+
 
 class Plot(QDialog):
     """Plot dialog."""
@@ -38,8 +40,8 @@ class Plot(QDialog):
         self.ax.plot(
             median_series.index,
             median_series.to_numpy(),
-            marker="o",
-            linestyle="-",
+            marker=Settings.plot_marker(),
+            linestyle=Settings.plot_linestyle(),
         )
         self.ax.set_xlabel(xlabel=x_column)
         self.ax.set_ylabel(ylabel=y_column)

@@ -15,6 +15,7 @@ from library.functional import model_predict
 from library.ui.date_selector import DateSelector
 from library.ui.layout import Layout
 from library.ui.prediction import PredictionDialog
+from library.ui.settings import Settings
 from library.ui.time_selector import TimeSelector
 
 
@@ -25,6 +26,11 @@ class App(QWidget):
     def __init__(self: Self) -> None:
         super().__init__()
         self.setWindowTitle("Energy consumption time series")
+
+        self.settings_button = QPushButton("Настройки")
+        self.settings_button.clicked.connect(
+            lambda: Settings(parent=self).exec(),
+        )
 
         self.start_date = DateSelector(self.check_datetime_validity)
         self.end_date = DateSelector(self.check_datetime_validity)
@@ -39,6 +45,7 @@ class App(QWidget):
 
         self.setLayout(
             Layout(
+                settings_button=self.settings_button,
                 start_date=self.start_date,
                 start_time=self.start_time,
                 end_date=self.end_date,
