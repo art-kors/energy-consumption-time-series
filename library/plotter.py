@@ -24,9 +24,9 @@ def data_to_plot(company_name, predict=False) -> None:
 
 #X, y = extract_features('COMED', 0, 23, '2011-12-31', '2016-01-11')
 #print(X.shape)
-#
+
 #print(X)
-#
+
 #network = NeuralNetwork([
 #    Dense(X.shape[1], X.shape[1]//2),
 #    ReLU(),
@@ -39,7 +39,8 @@ def data_to_plot(company_name, predict=False) -> None:
 #    loss_prime=mse_prime,
 #    numeric_features=[*X.columns])
 #
-#np.exp(0)
+#
+#
 #network.train(X_train=X[:len(X)//2], y_train=y[:len(X)//2], batch_size=128, epochs=10, learning_rate=0.001)
 #
 #from sklearn.metrics import mean_absolute_percentage_error

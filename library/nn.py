@@ -113,39 +113,15 @@ class NeuralNetwork:
         self.categorical_features = categorical_features
         self.preprocessor = None
 
-    def _prepare_data(self, X: pd.DataFrame, y: pd.DataFrame = None, fit: bool = False) -> tuple:
-        """Подготовка данных: обработка категориальных признаков и нормализация."""
-        if fit:
-            # Определяем трансформеры для числовых и категориальных признаков
-            numeric_transformer = StandardScaler()
-            categorical_transformer = OneHotEncoder(handle_unknown='ignore')
 
-            transformers = []
-            if self.numeric_features:
-                transformers.append(('num', numeric_transformer, self.numeric_features))
-            if self.categorical_features:
-                transformers.append(('cat', categorical_transformer, self.categorical_features))
-
-            self.preprocessor = ColumnTransformer(transformers, remainder='passthrough')
-
-            # Фитируем и преобразуем данные
-            X_processed = self.preprocessor.fit_transform(X)
-        else:
-            # Только преобразуем данные
-            X_processed = self.preprocessor.transform(X)
-        y_processed = y.values.reshape(-1, 1) if y is not None else None
-
-        return X_processed, y_processed
-
-    def predict(self, X: pd.DataFrame) -> np.ndarray:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """Предсказание сети (прямой проход)."""
         #if self.preprocessor is None:
         #    raise ValueError("Модель не обучена. Сначала вызовите метод train().")
 
-        X_processed = X.to_numpy()
         predictions = []
 
-        for x in X_processed:
+        for x in X:
             output = x.reshape(-1, 1)  # преобразуем в вектор-столбец
             for layer in self.layers:
                 output = layer.forward(output)
@@ -153,19 +129,19 @@ class NeuralNetwork:
 
         return np.array(predictions)
 
-    def train(self, X_train: pd.DataFrame, y_train: pd.DataFrame,
+    def train(self, X_train: np.ndarray, y_train: np.ndarray,
               epochs: int, learning_rate: float, batch_size: int = 32,
               verbose: bool = True):
         """Обучение сети на тренировочных данных."""
         # Подготовка данных
-        X_processed, y_processed = X_train.to_numpy(), y_train.to_numpy()
+        y_train = np.expand_dims(y_train, 1)
 
         for epoch in range(epochs):
             error = 0
             # Мини-пакетный градиентный спуск
-            for i in range(0, len(X_processed), batch_size):
-                batch_X = X_processed[i:i + batch_size]
-                batch_y = y_processed[i:i + batch_size]
+            for i in range(0, len(X_train), batch_size):
+                batch_X = X_train[i:i + batch_size]
+                batch_y = y_train[i:i + batch_size]
 
                 batch_error = 0
                 for x, y in zip(batch_X, batch_y):
@@ -184,9 +160,9 @@ class NeuralNetwork:
 
                 error += batch_error / len(batch_X)
 
-            error /= (len(X_processed) / batch_size)
+            error /= (len(X_train) / batch_size)
             if verbose:
-                print(f"Epoch {epoch + 1}/{epochs}, error={error:.6f}")
+                print(f"Epoch {epoch + 1}/{epochs}")
 
 
 # Примеры функций потерь
@@ -240,7 +216,6 @@ def mape_prime(y_true: np.ndarray, y_pred: np.ndarray, epsilon: float = 1e-8) ->
     return error_sign * scale
 
 
-
 def binary_crossentropy(y_true, y_pred):
     epsilon = 1e-15
     y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
@@ -251,6 +226,3 @@ def binary_crossentropy_prime(y_true, y_pred):
     epsilon = 1e-15
     y_pred = np.clip(y_pred, epsilon, 1 - epsilon)
     return (y_pred - y_true) / (y_pred * (1 - y_pred))
-
-
-# Пример использования с pandas.DataFrame
