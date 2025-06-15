@@ -143,9 +143,9 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
     model = 0
     with open(f"./scripts/{filename}_regressor.pkl", "rb") as f:
         model = pickle.load(f)
-    pred = df.DataFrame({f"{filename}_MW": model.predict(X)})
+    pred = pd.DataFrame({f"{filename}_MW": model.predict(X)})
     all = pd.concat([df, pred], axis=1)
-    return (all, pred)
+    return all
 
 
 def model_predict_by_data(filename, X):
