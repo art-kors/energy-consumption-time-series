@@ -26,9 +26,11 @@ class Plot(QDialog):
         self.figure, self.ax = plt.subplots()
         self.canvas = FigureCanvas(figure=self.figure)
 
+        median_series = data_frame.groupby(x_column)[y_column].mean()
+
         self.ax.plot(
-            data_frame[x_column],
-            data_frame[y_column],
+            median_series.index,
+            median_series.values,
             marker="o",
             linestyle="-",
         )
