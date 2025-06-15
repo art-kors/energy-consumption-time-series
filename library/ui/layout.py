@@ -6,7 +6,15 @@ from PySide6.QtWidgets import (
 
 
 class Layout(QVBoxLayout):
-    def __init__(self, start_date, start_time, end_date, end_time, city_combo, btn_show):
+    def __init__(
+        self,
+        start_date,
+        start_time,
+        end_date,
+        end_time,
+        city_combo,
+        btn_show,
+    ):
         super().__init__()
 
         start_date_layout = QHBoxLayout()

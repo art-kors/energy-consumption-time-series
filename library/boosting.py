@@ -1,12 +1,20 @@
 import numpy as np
 
+
 class DecisionTreeRegressor:
     def __init__(self, max_depth=3):
         self.max_depth = max_depth
         self.tree = None
 
     class Node:
-        def __init__(self, feature_idx=None, threshold=None, left=None, right=None, value=None):
+        def __init__(
+            self,
+            feature_idx=None,
+            threshold=None,
+            left=None,
+            right=None,
+            value=None,
+        ):
             self.feature_idx = feature_idx
             self.threshold = threshold
             self.left = left
@@ -17,7 +25,7 @@ class DecisionTreeRegressor:
         return np.mean((y - np.mean(y)) ** 2)
 
     def _best_split(self, X, y):
-        best_mse = float('inf')
+        best_mse = float("inf")
         best_feature, best_threshold = None, None
 
         for feature_idx in range(X.shape[1]):
@@ -29,8 +37,10 @@ class DecisionTreeRegressor:
                 if np.sum(left_mask) == 0 or np.sum(right_mask) == 0:
                     continue
 
-                mse = (self._mse(y[left_mask]) * np.sum(left_mask) +
-                       self._mse(y[right_mask]) * np.sum(right_mask)) / len(y)
+                mse = (
+                    self._mse(y[left_mask]) * np.sum(left_mask)
+                    + self._mse(y[right_mask]) * np.sum(right_mask)
+                ) / len(y)
 
                 if mse < best_mse:
                     best_mse = mse
@@ -63,8 +73,7 @@ class DecisionTreeRegressor:
             return node.value
         if x[node.feature_idx] <= node.threshold:
             return self._predict_sample(x, node.left)
-        else:
-            return self._predict_sample(x, node.right)
+        return self._predict_sample(x, node.right)
 
     def predict(self, X):
         return np.array([self._predict_sample(x, self.tree) for x in X])
@@ -81,7 +90,11 @@ class GradientBoostingRegressor:
     def train(self, X, y):
         # Начальное предсказание - среднее значение y
         self.initial_prediction = np.mean(y)
-        current_pred = np.full_like(y, self.initial_prediction, dtype=np.float64)
+        current_pred = np.full_like(
+            y,
+            self.initial_prediction,
+            dtype=np.float64,
+        )
 
         for _ in range(self.n_estimators):
             # Вычисляем остатки (антиградиент)
