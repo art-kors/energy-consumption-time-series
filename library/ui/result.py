@@ -42,11 +42,13 @@ class ResultDialog(QDialog):
     def create_table(self: Self, data_frame: DataFrame) -> QTableView:
         table = QTableView()
         table.setModel(PandasModel(parent=self, data_frame=data_frame))
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch,
+        )
         # self.table.horizontalHeader().setStretchLastSection(True)
         return table
 
-    def show_checked(self: Self):
+    def show_checked(self: Self) -> None:
         checked = [cb.text() for cb in self.checkboxes if cb.isChecked()]
         y_column = self.data_frame.columns.tolist()[-1]
         for x_column in checked:

@@ -5,7 +5,7 @@ from library.ui.app import App
 from PySide6.QtWidgets import QApplication
 
 
-def main():
+def main() -> None:
     app = QApplication(argv)
     window = App()
     window.resize(350, 250)

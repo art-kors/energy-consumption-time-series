@@ -1,14 +1,16 @@
 """Main UI module."""
 
-from datetime import datetime, time
+from datetime import datetime
+from pathlib import Path
+from typing import Self
 
-import pandas as pd
 from PySide6.QtWidgets import (
     QComboBox,
     QPushButton,
     QWidget,
 )
 
+from library.functional import model_predict
 from library.ui.date_selector import DateSelector
 from library.ui.layout import Layout
 from library.ui.result import ResultDialog
@@ -16,7 +18,7 @@ from library.ui.time_selector import TimeSelector
 
 
 class App(QWidget):
-    def __init__(self):
+    def __init__(self: Self) -> None:
         super().__init__()
         self.setWindowTitle("Выбор даты, времени и города")
 
@@ -26,33 +28,45 @@ class App(QWidget):
         self.start_time = TimeSelector(self.check_datetime_validity)
         self.end_time = TimeSelector(self.check_datetime_validity)
 
-        self.city_combo = QComboBox()
-        cities = ["Москва", "Санкт-Петербург", "Новосибирск", "Екатеринбург", "Казань"]
-        self.city_combo.addItems(cities)
+        self.companies = self.get_companies()
 
         self.btn_show = QPushButton("Показать выбор")
         self.btn_show.clicked.connect(self.show_selection)
 
-        self.setLayout(Layout(
-            self.start_date,
-            self.start_time,
-            self.end_date,
-            self.end_time,
-            self.city_combo,
-            self.btn_show,
-        ))
+        self.setLayout(
+            Layout(
+                self.start_date,
+                self.start_time,
+                self.end_date,
+                self.end_time,
+                self.companies,
+                self.btn_show,
+            ),
+        )
 
         self.check_datetime_validity()
 
+    @staticmethod
+    def get_companies() -> QComboBox:
+        companies = QComboBox()
+        file_ending_length = 11
+        companies.addItems(
+            [
+                company.name[:-file_ending_length]
+                for company in Path("./data/").iterdir()
+            ],
+        )
+        return companies
+
     def get_start_datetime(self):
-        start_dt = self.start_date.date().toPython()
-        start_tm = self.start_time.time().toPython()
-        return datetime.combine(start_dt, time(start_tm.hour, start_tm.minute))
+        date = self.start_date.date().toPython()
+        time = self.start_time.time().toPython()
+        return datetime.combine(date=date, time=time)
 
     def get_end_datetime(self):
-        end_dt = self.end_date.date().toPython()
-        end_tm = self.end_time.time().toPython()
-        return datetime.combine(end_dt, time(end_tm.hour, end_tm.minute))
+        date = self.end_date.date().toPython()
+        time = self.end_time.time().toPython()
+        return datetime.combine(date=date, time=time)
 
     def check_datetime_validity(self):
         start = self.get_start_datetime()
@@ -68,11 +82,9 @@ class App(QWidget):
             self.btn_show.setToolTip("")
 
     def show_selection(self):
-        dataframe = pd.DataFrame({
-            'Name': ['Alice', 'Bob', 'Charlie'],
-            'Age': [28, 34, 45],
-            'Occupation': ['Engineer', 'Doctor', 'Artist'],
-            'result': [123, 456, 789],
-        })
-        ResultDialog(self, dataframe).exec()
-        city = self.city_combo.currentText()
+        data_frame = model_predict(
+            self.companies.currentText(),
+            self.get_start_datetime(),
+            self.get_end_datetime(),
+        )
+        ResultDialog(parent=self, data_frame=data_frame).exec()
