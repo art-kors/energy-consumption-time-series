@@ -1,11 +1,10 @@
 """Main UI module."""
 
-from datetime import datetime
+from datetime import date, datetime, time
 from pathlib import Path
-from random import randint
 from typing import Self, override
 
-from pandas import DataFrame
+from PySide6.QtCore import QDate, QTime
 from PySide6.QtWidgets import (
     QComboBox,
     QPushButton,
@@ -64,18 +63,34 @@ class App(QWidget):
         )
         return companies
 
+    @staticmethod
+    def get_datetime(selected_date: QDate, selected_time: QTime) -> datetime:
+        """Get python `datetime` object from `QDate` and `QTime`."""
+        return datetime.combine(
+            date=date(
+                year=selected_date.year(),
+                month=selected_date.month(),
+                day=selected_date.day(),
+            ),
+            time=time(
+                hour=selected_time.hour(),
+                minute=selected_time.minute(),
+                second=selected_time.second(),
+            ),
+        )
+
     def get_start_datetime(self: Self) -> datetime:
         """Get selected start date and time in `datetime` format."""
-        return datetime.combine(
-            date=self.start_date.date().toPython(),
-            time=self.start_time.time().toPython(),
+        return self.get_datetime(
+            self.start_date.date(),
+            self.start_time.time(),
         )
 
     def get_end_datetime(self: Self) -> datetime:
         """Get selected end date and time in `datetime` format."""
-        return datetime.combine(
-            date=self.end_date.date().toPython(),
-            time=self.end_time.time().toPython(),
+        return self.get_datetime(
+            self.end_date.date(),
+            self.end_time.time(),
         )
 
     def check_datetime_validity(self: Self) -> None:
@@ -96,10 +111,4 @@ class App(QWidget):
             self.get_start_datetime(),
             self.get_end_datetime(),
         )
-        # data_frame = DataFrame({
-        #     "A": [randint(-10, 10), randint(-10, 10), randint(-10, 10), randint(-10, 10)],
-        #     "B": [randint(-10, 10), randint(-10, 10), randint(-10, 10), randint(-10, 10)],
-        #     "C": [randint(-10, 10), randint(-10, 10), randint(-10, 10), randint(-10, 10)],
-        #     "D": [randint(-10, 10), randint(-10, 10), randint(-10, 10), randint(-10, 10)],
-        # })
         PredictionDialog(parent=self, data_frame=data_frame).exec()

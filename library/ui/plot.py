@@ -30,7 +30,7 @@ class Plot(QDialog):
 
         self.ax.plot(
             median_series.index,
-            median_series.values,
+            median_series.to_numpy(),
             marker="o",
             linestyle="-",
         )
