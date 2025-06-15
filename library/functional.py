@@ -137,6 +137,7 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
     # del df['hour']
     df["month_sin"] = np.sin(df["month"])
     df["month_cos"] = np.cos(df["month"])
+    saved = df["Datetime"]
     del df["Datetime"]
 
     X = df.to_numpy()
@@ -144,7 +145,7 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
     with open(f"{filename}.pkl", "rb") as f:
         model = pickle.load(f)
     pred = df.DataFrame({f"{filename}_MW": model.predict(X)})
-    all = pd.concat([df, pred], axis=1)
+    all = pd.concat([df, pred, saved], axis=1)
     return (all, pred)
 
 
