@@ -2,6 +2,9 @@ import pandas as pd
 import datetime as dt
 import pickle
 import numpy as np
+from boosting import GradientBoostingRegressor
+from nn import *
+
 
 def extract_features(company_name, hour_from, hour_to, date_from, date_to):
     # TODO: создать функцию, которая возвращает pd.Dataframe() с фичами
@@ -46,11 +49,28 @@ def data_filter(df, hour_from, hour_to, date_from, date_to):  # date info is tup
     return df
 
 
-def save_model(company_name, hour_from, hour_to, date_from, date_to, filename):
-    #TODO: train model
-    X, y = extract_features(company_name, hour_from, hour_to, date_from, date_to)
-    print(X)
-    print(y)
-    model = 0
-    with open(f'{filename}.pickle', 'wb') as f:
-        pickle.dumps(model, f)
+def save_model(company_name, hour_from, hour_to, date_from, date_to, filename, method="Boosting"):
+    X_train, y_train = extract_features(company_name, hour_from, hour_to, date_from, date_to)
+    columns = X_train.columns
+    X_train, y_train = X_train.to_numpy(), y_train.to_numpy()
+    model = None
+    if method == 'Boosting':
+        model = GradientBoostingRegressor(n_estimators=50, learning_rate=0.0001, max_depth=10)
+        model.fit(X_train, y_train)
+    elif method == 'NeuralNetwork':
+        model = NeuralNetwork([
+            Dense(X_train.shape[1], X_train.shape[1]//2),
+            ReLU(),
+            Dense(X_train.shape[1]//2, X_train.shape[1]//4),
+            ReLU(),
+            Dense(X_train.shape[1]//4, 1),
+            ReLU()
+        ],
+            loss=mse,
+            loss_prime=mse_prime,
+            numeric_features=[*columns])
+        model.train(X_train=X_train, y_train=y_train, batch_size=128, epochs=10, learning_rate=0.01)
+    else:
+        raise "There is no model"
+    with open(f'{filename}.pkl', 'wb') as f:
+        pickle.dump(model, f)

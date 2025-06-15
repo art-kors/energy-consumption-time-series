@@ -1,9 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import Callable, List, Union
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
+from typing import Callable, List
 
 
 class Layer:
@@ -64,7 +61,6 @@ class Activation(Layer):
         return output_gradient * self.activation_prime(self.input)
 
 
-# Популярные функции активации
 class Tanh(Activation):
     def __init__(self):
         def tanh(x):
@@ -78,13 +74,7 @@ class Tanh(Activation):
 
 class ReLU(Activation):
     def __init__(self):
-        def relu(x):
-            return np.maximum(0, x)
-
-        def relu_prime(x):
-            return (x > 0).astype(float)
-
-        super().__init__(relu, relu_prime)
+        super().__init__(lambda x: np.maximum(0, x), lambda x: (x > 0).astype(float))
 
 
 class Sigmoid(Activation):
@@ -97,7 +87,6 @@ class Sigmoid(Activation):
             return s * (1 - s)
 
         super().__init__(sigmoid, sigmoid_prime)
-
 
 class NeuralNetwork:
     """Нейронная сеть с поддержкой pandas.DataFrame."""
