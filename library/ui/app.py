@@ -2,10 +2,7 @@
 
 from datetime import datetime, time
 
-import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from PySide6.QtCore import QAbstractTableModel, QModelIndex, Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -19,35 +16,9 @@ from PySide6.QtWidgets import (
 
 from library.ui.date_selector import DateSelector
 from library.ui.layout import Layout
-from library.ui.time_selector import TimeSelector
 from library.ui.plot import Plot
-
-
-class PandasModel(QAbstractTableModel):
-    def __init__(self, dataframe: pd.DataFrame, parent=None):
-        super().__init__(parent)
-        self._dataframe = dataframe
-
-    def rowCount(self, parent=QModelIndex()):
-        return len(self._dataframe)
-
-    def columnCount(self, parent=QModelIndex()):
-        return self._dataframe.columns.size
-
-    def data(self, index, role=Qt.DisplayRole):
-        if not index.isValid():
-            return None
-        if role == Qt.DisplayRole:
-            return str(self._dataframe.iloc[index.row(), index.column()])
-        return None
-
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
-            if orientation == Qt.Horizontal:
-                return str(self._dataframe.columns[section])
-            if orientation == Qt.Vertical:
-                return str(self._dataframe.index[section])
-        return None
+from library.ui.table import PandasModel
+from library.ui.time_selector import TimeSelector
 
 
 class CheckboxDialog(QDialog):
@@ -59,7 +30,7 @@ class CheckboxDialog(QDialog):
         layout = QVBoxLayout()
 
         self.table = QTableView()
-        self.model = PandasModel(data_frame)
+        self.model = PandasModel(parent=self, data_frame=data_frame)
         self.table.setModel(self.model)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         # self.table.horizontalHeader().setStretchLastSection(True)
