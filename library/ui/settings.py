@@ -30,15 +30,21 @@ class Settings(QDialog):
         plot_markers = QComboBox()
         plot_markers.addItems(Settings.plot_markers)
         plot_markers.setCurrentText(self.plot_marker())
-        plot_markers.currentTextChanged.connect(lambda: self.set_property(
-            "plot_marker", plot_markers.currentText()),
+        plot_markers.currentTextChanged.connect(
+            lambda: self.set_property(
+                "plot_marker",
+                plot_markers.currentText(),
+            ),
         )
 
         plot_linestyles = QComboBox()
         plot_linestyles.addItems(Settings.plot_linestyles)
         plot_linestyles.setCurrentText(self.plot_linestyle())
-        plot_linestyles.currentTextChanged.connect(lambda: self.set_property(
-            "plot_linestyle", plot_linestyles.currentText()),
+        plot_linestyles.currentTextChanged.connect(
+            lambda: self.set_property(
+                "plot_linestyle",
+                plot_linestyles.currentText(),
+            ),
         )
 
         plot_marker_layout = QHBoxLayout()

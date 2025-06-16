@@ -22,13 +22,13 @@ from library.ui.table import PandasModel
 
 
 class TableFormat(StrEnum):
-        """Table export formats."""
+    """Table export formats."""
 
-        XLSX = "EXCEL (*.xlsx)"
-        CSV = "CSV (*.csv)"
-        XML = "XML (*.xml)"
-        HTML = "HTML (*.html)"
-        JSON = "JSON (*.json)"
+    XLSX = "EXCEL (*.xlsx)"
+    CSV = "CSV (*.csv)"
+    XML = "XML (*.xml)"
+    HTML = "HTML (*.html)"
+    JSON = "JSON (*.json)"
 
 
 class PredictionDialog(QDialog):
@@ -52,10 +52,12 @@ class PredictionDialog(QDialog):
         self.export_button.clicked.connect(self.export_table)
         layout.addWidget(self.export_button)
 
-        layout.addWidget(QLabel(
-            text="Выберите графики зависимости предсказания",
-            alignment=Qt.AlignmentFlag.AlignCenter,
-        ))
+        layout.addWidget(
+            QLabel(
+                text="Выберите графики зависимости предсказания",
+                alignment=Qt.AlignmentFlag.AlignCenter,
+            ),
+        )
 
         main_checkbox_layout = QHBoxLayout()
         columns = data_frame.columns.tolist()[:-1]
@@ -89,7 +91,9 @@ class PredictionDialog(QDialog):
         file_path, file_type = QFileDialog.getSaveFileName(
             parent=self,
             caption="Сохранить таблицу",
-            filter=";;".join(table_format.value for table_format in TableFormat),
+            filter=";;".join(
+                table_format.value for table_format in TableFormat
+            ),
         )
         if file_path:
             match file_type:

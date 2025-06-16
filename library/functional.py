@@ -1,11 +1,10 @@
-import pickle
 import datetime as dt
+import pickle
 
 import numpy as np
 import pandas as pd
 
 from .boosting import GradientBoostingRegressor
-
 
 
 def extract_features(company_name):
