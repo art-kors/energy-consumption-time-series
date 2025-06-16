@@ -6,17 +6,15 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from numpy import cos, sin
-from pandas import DataFrame, Series, concat, date_range
+from numpy import cos, ndarray, sin
+from pandas import DataFrame, concat, date_range
 
 from .boosting import GradientBoostingRegressor
 
 
-def extract_features(company_name: str) -> tuple[DataFrame, Series]:
-    # TODO: создать функцию, которая возвращает pd.Dataframe() с фичами
-    # пока нужно просто год, месяц, день, квартал(время года)
-    # другие фичи уже уточняй уже у @AK_N0maD
-    data_frame = pd.read_csv(f"../data/{company_name}_hourly.csv")
+def extract_features(company_name: str) -> tuple[ndarray, ndarray]:
+    """Extract features for model training."""
+    data_frame = pd.read_csv(f"./data/companies/{company_name}_hourly.csv")
 
     data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
     # Извлекаем компоненты даты и времени
@@ -46,7 +44,7 @@ def extract_features(company_name: str) -> tuple[DataFrame, Series]:
     y = data_frame[f"{company_name}_MW"]
     del data_frame[f"{company_name}_MW"]
     del data_frame["Datetime"]
-    return (data_frame, y)
+    return data_frame.to_numpy(), y.to_numpy()
 
 
 def generate_features(start: datetime, end: datetime) -> DataFrame:  # X only!
@@ -57,7 +55,6 @@ def generate_features(start: datetime, end: datetime) -> DataFrame:  # X only!
 def pickle_model(company_name: str) -> None:
     """Train model on dataset and pickle it."""
     x_train, y_train = extract_features(company_name)
-    x_train, y_train = x_train.to_numpy(), y_train.to_numpy()
     model = GradientBoostingRegressor(
         n_estimators=50,
         learning_rate=0.0001,
@@ -78,6 +75,7 @@ def model_predict(
     """Predict energy consumption."""
     data_frame = generate_features(start, end)
     data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
+
     # Извлекаем компоненты даты и времени
     data_frame["year"] = data_frame["Datetime"].dt.year
     data_frame["month"] = data_frame["Datetime"].dt.month
@@ -103,6 +101,7 @@ def model_predict(
 
     data_frame["month_sin"] = sin(data_frame["month"])
     data_frame["month_cos"] = cos(data_frame["month"])
+
     saved = data_frame["Datetime"]
     del data_frame["Datetime"]
 
