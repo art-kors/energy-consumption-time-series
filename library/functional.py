@@ -4,19 +4,17 @@ import pickle
 from datetime import datetime
 from pathlib import Path
 
-import numpy as np
-import pandas as pd
 from numpy import cos, ndarray, sin
-from pandas import DataFrame, concat, date_range
+from pandas import DataFrame, concat, date_range, read_csv, to_datetime
 
 from .boosting import GradientBoostingRegressor
 
 
 def extract_features(company_name: str) -> tuple[ndarray, ndarray]:
     """Extract features for model training."""
-    data_frame = pd.read_csv(f"./data/companies/{company_name}_hourly.csv")
+    data_frame = read_csv(f"./data/companies/{company_name}_hourly.csv")
 
-    data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
+    data_frame["Datetime"] = to_datetime(data_frame["Datetime"])
     # Извлекаем компоненты даты и времени
     data_frame["year"] = data_frame["Datetime"].dt.year
     data_frame["month"] = data_frame["Datetime"].dt.month
@@ -34,12 +32,12 @@ def extract_features(company_name: str) -> tuple[ndarray, ndarray]:
     data_frame["dayofyear"] = data_frame["Datetime"].dt.dayofyear
     data_frame["weekofyear"] = data_frame["Datetime"].dt.isocalendar().week
 
-    data_frame["day_sin"] = np.sin(data_frame["day"])
-    data_frame["day_cos"] = np.cos(data_frame["day"])
-    data_frame["hour_sin"] = np.sin(data_frame["hour"])
-    data_frame["hour_cos"] = np.cos(data_frame["hour"])
-    data_frame["month_sin"] = np.sin(data_frame["month"])
-    data_frame["month_cos"] = np.cos(data_frame["month"])
+    data_frame["day_sin"] = sin(data_frame["day"])
+    data_frame["day_cos"] = cos(data_frame["day"])
+    data_frame["hour_sin"] = sin(data_frame["hour"])
+    data_frame["hour_cos"] = cos(data_frame["hour"])
+    data_frame["month_sin"] = sin(data_frame["month"])
+    data_frame["month_cos"] = cos(data_frame["month"])
 
     y = data_frame[f"{company_name}_MW"]
     del data_frame[f"{company_name}_MW"]
@@ -74,7 +72,7 @@ def model_predict(
 ) -> DataFrame:
     """Predict energy consumption."""
     data_frame = generate_features(start, end)
-    data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
+    data_frame["Datetime"] = to_datetime(data_frame["Datetime"])
 
     # Извлекаем компоненты даты и времени
     data_frame["year"] = data_frame["Datetime"].dt.year
