@@ -83,7 +83,9 @@ class PredictionDialog(QDialog):
         """Create prediction table."""
         table = QTableView()
         table.setModel(PandasModel(parent=self, data_frame=data_frame))
-        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeMode.Stretch,
+        )
         return table
 
     def export_table(self: Self) -> None:
