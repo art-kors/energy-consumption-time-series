@@ -1,156 +1,115 @@
-import datetime as dt
+"""ML functional module."""
+
 import pickle
+from datetime import datetime
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from numpy import cos, ndarray, sin
+from pandas import DataFrame, concat, date_range
 
 from .boosting import GradientBoostingRegressor
 
 
-def extract_features(company_name):
-    # TODO: создать функцию, которая возвращает pd.Dataframe() с фичами
-    # пока нужно просто год, месяц, день, квартал(время года)
-    # другие фичи уже уточняй уже у @AK_N0maD
-    df = pd.read_csv(f"../data/{company_name}_hourly.csv")
+def extract_features(company_name: str) -> tuple[ndarray, ndarray]:
+    """Extract features for model training."""
+    data_frame = pd.read_csv(f"./data/companies/{company_name}_hourly.csv")
 
-    df["Datetime"] = pd.to_datetime(df["Datetime"])
+    data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
     # Извлекаем компоненты даты и времени
-    df["year"] = df["Datetime"].dt.year
-    df["month"] = df["Datetime"].dt.month
-    df["day"] = df["Datetime"].dt.day
-    df["hour"] = df["Datetime"].dt.hour
+    data_frame["year"] = data_frame["Datetime"].dt.year
+    data_frame["month"] = data_frame["Datetime"].dt.month
+    data_frame["day"] = data_frame["Datetime"].dt.day
+    data_frame["hour"] = data_frame["Datetime"].dt.hour
 
     # Дополнительные полезные признаки
-    df["dayofweek"] = df["Datetime"].dt.dayofweek  # 0-6 (пн-вс)
-    df["is_weekend"] = df["Datetime"].dt.dayofweek // 5  # 1 если выходной
-    df["quarter"] = df["Datetime"].dt.quarter
-    df["dayofyear"] = df["Datetime"].dt.dayofyear
-    df["weekofyear"] = df["Datetime"].dt.isocalendar().week
-    print("filtration")
-    # df = data_filter(df, hour_from, hour_to, date_from, date_to)
+    data_frame["dayofweek"] = data_frame[
+        "Datetime"
+    ].dt.dayofweek  # 0-6 (пн-вс)
+    data_frame["is_weekend"] = (
+        data_frame["Datetime"].dt.dayofweek // 5
+    )  # 1 если выходной
+    data_frame["quarter"] = data_frame["Datetime"].dt.quarter
+    data_frame["dayofyear"] = data_frame["Datetime"].dt.dayofyear
+    data_frame["weekofyear"] = data_frame["Datetime"].dt.isocalendar().week
 
-    df["day_sin"] = np.sin(df["day"])
-    df["day_cos"] = np.cos(df["day"])
-    # del df['day']
-    df["hour_sin"] = np.sin(df["hour"])
-    df["hour_cos"] = np.cos(df["hour"])
-    # del df['hour']
-    df["month_sin"] = np.sin(df["month"])
-    df["month_cos"] = np.cos(df["month"])
-    # del df['month']
-    y = df[f"{company_name}_MW"]
-    del df[f"{company_name}_MW"]
-    del df["Datetime"]
-    return (df, y)
+    data_frame["day_sin"] = np.sin(data_frame["day"])
+    data_frame["day_cos"] = np.cos(data_frame["day"])
+    data_frame["hour_sin"] = np.sin(data_frame["hour"])
+    data_frame["hour_cos"] = np.cos(data_frame["hour"])
+    data_frame["month_sin"] = np.sin(data_frame["month"])
+    data_frame["month_cos"] = np.cos(data_frame["month"])
 
-
-def generate_features(hour_from, hour_to, date_from, date_to):  # X only!
-    # Создаем диапазон дат
-    dates = pd.date_range(start=date_from, end=date_to, freq="D")
-
-    # Создаем временные метки внутри указанного интервала
-    time_range = pd.date_range(
-        start=f"{hour_from}:00",
-        end=f"{hour_to}:00",
-        freq="1h",
-    ).time
-
-    # Генерируем все комбинации дат и времени
-    datetime_list = []
-    for date in dates:
-        for time in time_range:
-            datetime_list.append(
-                pd.to_datetime(str(date.date()) + " " + str(time)),
-            )
-
-    df = pd.DataFrame({"Datetime": datetime_list})
-    return df
+    y = data_frame[f"{company_name}_MW"]
+    del data_frame[f"{company_name}_MW"]
+    del data_frame["Datetime"]
+    return data_frame.to_numpy(), y.to_numpy()
 
 
-def data_filter(
-    df,
-    hour_from,
-    hour_to,
-    date_from,
-    date_to,
-):  # date info is tuple in format (from, to)
-    df = df[
-        (df["hour"] >= hour_from)
-        & (df["hour"] <= hour_to)
-        & (df["Datetime"] >= date_from)
-        & (df["Datetime"] <= date_to)
-    ]
-    return df
+def generate_features(start: datetime, end: datetime) -> DataFrame:  # X only!
+    """Create date range."""
+    return DataFrame({"Datetime": date_range(start=start, end=end, freq="1h")})
 
 
-def pickle_model(company_name, filename, method="Boosting"):
-    X_train, y_train = extract_features(company_name)
-    columns = X_train.columns
-    X_train, y_train = X_train.to_numpy(), y_train.to_numpy()
-    model = None
-    if method == "Boosting":
-        model = GradientBoostingRegressor(
-            n_estimators=50,
-            learning_rate=0.0001,
-            max_depth=5,
-        )
-        model.train(X_train, y_train)
-    elif method == "NeuralNetwork":
-        # TODO: in near future
-        pass
-    else:
-        raise "There is no model"
-    with open(f"{filename}.pkl", "wb") as f:
-        pickle.dump(model, f)
+def pickle_model(company_name: str) -> None:
+    """Train model on dataset and pickle it."""
+    x_train, y_train = extract_features(company_name)
+    model = GradientBoostingRegressor(
+        n_estimators=50,
+        learning_rate=0.0001,
+        max_depth=5,
+    )
+    model.train(x_train, y_train)
+    with Path(f"./data/models/{company_name}_regressor.pkl").open(
+        mode="wb",
+    ) as file:
+        pickle.dump(model, file)
 
 
-def model_predict(filename, start: dt.datetime, end: dt.datetime):
-    date_from, date_to = start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
-    hour_from, hour_to = start.strftime("%H"), end.strftime("%H")
-    if hour_to[0] == "0":
-        hour_to = hour_to[1]
-    if hour_from[0] == "0":
-        hour_from = hour_from[1]
-    hour_from = int(hour_from)
-    hour_to = int(hour_to)
-    df = generate_features(hour_from, hour_to, date_from, date_to)
-    df["Datetime"] = pd.to_datetime(df["Datetime"])
+def model_predict(
+    company_name: str,
+    start: datetime,
+    end: datetime,
+) -> DataFrame:
+    """Predict energy consumption."""
+    data_frame = generate_features(start, end)
+    data_frame["Datetime"] = pd.to_datetime(data_frame["Datetime"])
+
     # Извлекаем компоненты даты и времени
-    df["year"] = df["Datetime"].dt.year
-    df["month"] = df["Datetime"].dt.month
-    df["day"] = df["Datetime"].dt.day
-    df["hour"] = df["Datetime"].dt.hour
+    data_frame["year"] = data_frame["Datetime"].dt.year
+    data_frame["month"] = data_frame["Datetime"].dt.month
+    data_frame["day"] = data_frame["Datetime"].dt.day
+    data_frame["hour"] = data_frame["Datetime"].dt.hour
 
     # Дополнительные полезные признаки
-    df["dayofweek"] = df["Datetime"].dt.dayofweek  # 0-6 (пн-вс)
-    df["is_weekend"] = df["Datetime"].dt.dayofweek // 5  # 1 если выходной
-    df["quarter"] = df["Datetime"].dt.quarter
-    df["dayofyear"] = df["Datetime"].dt.dayofyear
-    df["weekofyear"] = df["Datetime"].dt.isocalendar().week
+    data_frame["dayofweek"] = data_frame[
+        "Datetime"
+    ].dt.dayofweek  # 0-6 (пн-вс)
+    data_frame["is_weekend"] = (
+        data_frame["Datetime"].dt.dayofweek >= 5
+    )  # 1 если выходной
+    data_frame["quarter"] = data_frame["Datetime"].dt.quarter
+    data_frame["dayofyear"] = data_frame["Datetime"].dt.dayofyear
+    data_frame["weekofyear"] = data_frame["Datetime"].dt.isocalendar().week
 
-    df["day_sin"] = np.sin(df["day"])
-    df["day_cos"] = np.cos(df["day"])
-    # del df['day']
-    df["hour_sin"] = np.sin(df["hour"])
-    df["hour_cos"] = np.cos(df["hour"])
-    # del df['hour']
-    df["month_sin"] = np.sin(df["month"])
-    df["month_cos"] = np.cos(df["month"])
-    saved = df["Datetime"]
-    del df["Datetime"]
+    data_frame["day_sin"] = sin(data_frame["day"])
+    data_frame["day_cos"] = cos(data_frame["day"])
 
-    X = df.to_numpy()
+    data_frame["hour_sin"] = sin(data_frame["hour"])
+    data_frame["hour_cos"] = cos(data_frame["hour"])
+
+    data_frame["month_sin"] = sin(data_frame["month"])
+    data_frame["month_cos"] = cos(data_frame["month"])
+
+    saved = data_frame["Datetime"]
+    del data_frame["Datetime"]
+
+    x = data_frame.to_numpy()
     model = 0
-    with open(f"./scripts/{filename}_regressor.pkl", "rb") as f:
-        model = pickle.load(f)
-    pred = pd.DataFrame({f"{filename}_MW": model.predict(X)})
-    all = pd.concat([saved, df, pred], axis=1)
-    return all
-
-
-def model_predict_by_data(filename, X):
-    model = 0
-    with open(f"{filename}.pkl", "rb") as f:
-        model = pickle.load(f)
-    pred = model.predict(X)
-    return pred
+    with Path(f"./data/models/{company_name}_regressor.pkl").open(
+        mode="rb",
+    ) as file:
+        model = pickle.load(file)
+    pred = DataFrame({f"{company_name}_MW": model.predict(x)})
+    return concat([saved, data_frame, pred], axis=1)

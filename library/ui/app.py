@@ -65,7 +65,7 @@ class App(QWidget):
         companies.addItems(
             [
                 company.name[:-file_ending_length]
-                for company in Path("./data/").iterdir()
+                for company in Path("./data/companies/").iterdir()
             ],
         )
         return companies
