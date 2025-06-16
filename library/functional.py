@@ -1,11 +1,10 @@
-import pickle
 import datetime as dt
+import pickle
 
 import numpy as np
 import pandas as pd
 
 from .boosting import GradientBoostingRegressor
-
 
 
 def extract_features(company_name):
@@ -142,11 +141,11 @@ def model_predict(filename, start: dt.datetime, end: dt.datetime):
 
     X = df.to_numpy()
     model = 0
-    with open(f"{filename}.pkl", "rb") as f:
+    with open(f"./scripts/{filename}_regressor.pkl", "rb") as f:
         model = pickle.load(f)
-    pred = df.DataFrame({f"{filename}_MW": model.predict(X)})
-    all = pd.concat([df, pred, saved], axis=1)
-    return (all, pred)
+    pred = pd.DataFrame({f"{filename}_MW": model.predict(X)})
+    all = pd.concat([saved, df, pred], axis=1)
+    return all
 
 
 def model_predict_by_data(filename, X):

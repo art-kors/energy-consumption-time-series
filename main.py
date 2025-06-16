@@ -1,3 +1,5 @@
+"""Main file."""
+
 import sys
 from sys import argv
 
@@ -6,6 +8,7 @@ from PySide6.QtWidgets import QApplication
 
 
 def main() -> None:
+    """Start application."""
     app = QApplication(argv)
     window = App()
     window.resize(350, 250)
