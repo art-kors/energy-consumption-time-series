@@ -6,10 +6,12 @@ from typing import Self, override
 from msgspec import DecodeError
 from msgspec.toml import decode, encode
 from PySide6.QtWidgets import (
+    QColorDialog,
     QComboBox,
     QDialog,
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -47,6 +49,18 @@ class Settings(QDialog):
             ),
         )
 
+        select_color_button = QPushButton("Выберать цвет графика")
+        select_color_button.clicked.connect(
+            lambda: self.set_property(
+                "plot_color",
+                QColorDialog.getColor(
+                    initial=self.plot_color(),
+                    parent=self,
+                    title="Выберите цвет графика",
+                ).name(),
+            ),
+        )
+
         plot_marker_layout = QHBoxLayout()
         plot_marker_layout.addWidget(QLabel("Plot marker:"))
         plot_marker_layout.addWidget(plot_markers)
@@ -58,6 +72,7 @@ class Settings(QDialog):
         layout = QVBoxLayout()
         layout.addLayout(plot_marker_layout)
         layout.addLayout(plot_linestyle_layout)
+        layout.addWidget(select_color_button)
         self.setLayout(layout)
 
     @staticmethod
@@ -119,3 +134,34 @@ class Settings(QDialog):
         if linestyle in Settings.plot_linestyles:
             return linestyle
         return default
+
+    @staticmethod
+    def plot_color() -> str:
+        """Get plot color."""
+        default = "#000000"
+        color = Settings.get_property("plot_color", default)
+        if not color.startswith("#"):
+            return default
+        if len(color) != 7:
+            return default
+        for c in color[1:]:
+            if c not in {
+                "0",
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "a",
+                "b",
+                "c",
+                "d",
+                "e",
+                "f",
+            }:
+                return default
+        return color

@@ -42,6 +42,7 @@ class Plot(QDialog):
             median_series.to_numpy(),
             marker=Settings.plot_marker(),
             linestyle=Settings.plot_linestyle(),
+            color=Settings.plot_color(),
         )
         self.ax.set_xlabel(xlabel=x_column)
         self.ax.set_ylabel(ylabel=y_column)
