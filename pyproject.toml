@@ -6,12 +6,14 @@ readme = "README.md"
 authors = [
     { name = "Andrew Kozmin", email = "syn.kolbasyn.06@gmail.com" },
     { name = "Artemii Korsaev", email = "abkorsaev@edu.hse.ru" },
-    { name = "first_name last_name", email = "your@email.com" }
+    { name = "Kirill Golovanov", email = "cgolowanov@yandex.ru" }
 ]
 requires-python = ">=3.13, <3.14"
 dependencies = [
+    "lxml>=5.4.0",
     "matplotlib>=3.10.3",
     "msgspec[toml]>=0.19.0",
+    "openpyxl>=3.1.5",
     "pandas>=2.3.0",
     "pyside6>=6.9.1",
 ]
@@ -22,7 +24,7 @@ dev = [
 ]
 
 [tool.ruff]
-src = ["./main.py", "./library/"]
+src = ["./main.py", "./library/", "./scripts/"]
 lint.select = ["ALL"]
 lint.ignore = ["D203", "D212"]
 line-length = 79

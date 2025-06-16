@@ -25,7 +25,7 @@ class Settings(QDialog):
     @override
     def __init__(self: Self, parent: QWidget) -> None:
         super().__init__(parent=parent)
-        self.setWindowTitle("Settings")
+        self.setWindowTitle("Настройки")
 
         plot_markers = QComboBox()
         plot_markers.addItems(Settings.plot_markers)
