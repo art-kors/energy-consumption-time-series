@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QPushButton,
     QTableView,
@@ -38,7 +39,6 @@ class PredictionDialog(QDialog):
     def __init__(self: Self, parent: QWidget, data_frame: DataFrame) -> None:
         super().__init__(parent=parent, f=Qt.WindowType.Window)
         self.setWindowTitle("Предсказание")
-        self.setBaseSize(1280, 720)
 
         self.data_frame = data_frame
         self.graphs = []
@@ -83,7 +83,7 @@ class PredictionDialog(QDialog):
         """Create prediction table."""
         table = QTableView()
         table.setModel(PandasModel(parent=self, data_frame=data_frame))
-        table.resizeColumnsToContents()
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         return table
 
     def export_table(self: Self) -> None:
