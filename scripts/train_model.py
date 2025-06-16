@@ -1,10 +1,19 @@
-import os
+"""Model training script."""
 
-from library import functional
+from pathlib import Path
 
-for filename in os.listdir("../data"):
-    company = filename.split("_hourly")[0]
-    print(company)
-    if company + "_regressor.pkl" in os.listdir():
-        continue
-    functional.pickle_model(company, company + "_regressor")
+from library.functional import pickle_model
+
+
+def main() -> None:
+    """Train models and save them."""
+    file_ending_length = 11
+
+    for company in Path("./data/companies/").iterdir():
+        company_name = company.name[:-file_ending_length]
+        if not Path(f"./data/models/{company_name}_regressor.pkl").exists():
+            pickle_model(company_name)
+
+
+if __name__ == "__main__":
+    main()

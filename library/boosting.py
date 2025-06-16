@@ -1,28 +1,35 @@
+"""ML model module."""
+
+from typing import Self
+
 import numpy as np
+from numpy import float32, float64, full, full_like, mean, ndarray
 
 
 class DecisionTreeRegressor:
-    def __init__(self, max_depth=3):
+    """Decision tree regressor."""
+
+    def __init__(self: Self, max_depth: int = 3) -> None:
         self.max_depth = max_depth
         self.tree = None
 
     class Node:
         def __init__(
-            self,
+            self: Self,
             feature_idx=None,
             threshold=None,
             left=None,
             right=None,
             value=None,
-        ):
+        ) -> None:
             self.feature_idx = feature_idx
             self.threshold = threshold
             self.left = left
             self.right = right
             self.value = value
 
-    def _mse(self, y):
-        return np.mean((y - np.mean(y)) ** 2)
+    def _mse(self, y: ndarray) -> float32:
+        return mean((y - np.mean(y)) ** 2)
 
     def _best_split(self, X, y):
         best_mse = float("inf")
@@ -80,20 +87,27 @@ class DecisionTreeRegressor:
 
 
 class GradientBoostingRegressor:
-    def __init__(self, n_estimators=100, learning_rate=0.1, max_depth=3):
+    """Gradient boosting regressor."""
+
+    def __init__(
+        self: Self,
+        n_estimators: int = 100,
+        learning_rate: float = 0.1,
+        max_depth: int = 3,
+    ) -> None:
         self.n_estimators = n_estimators
         self.learning_rate = learning_rate
         self.max_depth = max_depth
         self.trees = []
         self.initial_prediction = None
 
-    def train(self, X, y):
+    def train(self, X, y) -> None:
         # Начальное предсказание - среднее значение y
-        self.initial_prediction = np.mean(y)
-        current_pred = np.full_like(
+        self.initial_prediction = mean(y)
+        current_pred = full_like(
             y,
             self.initial_prediction,
-            dtype=np.float64,
+            dtype=float64,
         )
 
         for _ in range(self.n_estimators):
@@ -113,7 +127,7 @@ class GradientBoostingRegressor:
 
     def predict(self, X):
         # Начинаем с начального предсказания
-        y_pred = np.full(X.shape[0], self.initial_prediction, dtype=np.float64)
+        y_pred = full(X.shape[0], self.initial_prediction, dtype=float64)
 
         # Добавляем предсказания всех деревьев
         for tree in self.trees:
